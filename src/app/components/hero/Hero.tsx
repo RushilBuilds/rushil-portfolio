@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ParticleField = dynamic(() => import('./ParticleField'), { ssr: false });
@@ -95,11 +96,22 @@ export default function Hero() {
             <div className="h-full w-full bg-gradient-to-r from-[#7c3aed] to-[#0d9488]" />
           </motion.div>
 
+          {/* Education */}
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.55, ease: EASE }}
+            className="text-[14px] font-normal leading-snug"
+            style={{ color: '#64748b' }}
+          >
+            University of Sydney · Bachelor of Computing (Computational Data Science) · 2025
+          </motion.p>
+
           {/* Subheading */}
           <motion.p
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.65, ease: EASE }}
+            transition={{ duration: 0.7, delay: 0.70, ease: EASE }}
             className="text-lg sm:text-xl text-slate-300 max-w-xl leading-relaxed font-light"
           >
             Building the infrastructure layer for AI systems that don&apos;t fail in production.
@@ -109,7 +121,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.85, ease: EASE }}
+            transition={{ duration: 0.7, delay: 0.90, ease: EASE }}
             className="flex flex-wrap gap-2"
           >
             {TAGS.map(({ label, accent }) => (
@@ -130,7 +142,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.05, ease: EASE }}
+            transition={{ duration: 0.7, delay: 1.10, ease: EASE }}
             className="flex flex-wrap gap-4 mt-1"
           >
             <a
@@ -154,23 +166,33 @@ export default function Hero() {
       {/* ── Scroll indicator ── */}
       <motion.div
         style={{ opacity: indicatorOpacity }}
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3 pointer-events-none"
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none"
         aria-hidden="true"
       >
-        <span className="text-[10px] text-slate-600 font-mono tracking-[0.25em] uppercase">
+        <span
+          className="font-mono uppercase"
+          style={{ fontSize: 13, letterSpacing: '0.15em', color: '#94a3b8' }}
+        >
           scroll to explore
         </span>
-        <div className="relative w-px h-10 overflow-hidden">
+        <div className="relative w-px h-12 overflow-hidden">
           <motion.div
             className="absolute left-0 top-0 w-full"
             style={{
               height: '100%',
-              background: 'linear-gradient(to bottom, transparent 0%, #475569 50%, transparent 100%)',
+              background: 'linear-gradient(to bottom, transparent 0%, #0d9488 50%, transparent 100%)',
             }}
             animate={{ y: ['-100%', '100%'] }}
-            transition={{ duration: 1.3, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 1.1, repeat: Infinity, ease: 'linear' }}
           />
         </div>
+        <motion.div
+          animate={{ y: [0, 5, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ color: '#0d9488' }}
+        >
+          <ChevronDown size={14} />
+        </motion.div>
       </motion.div>
     </section>
   );

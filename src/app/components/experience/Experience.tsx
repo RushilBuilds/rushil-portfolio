@@ -107,11 +107,7 @@ function CompanyLogo({ src, company }: { src: string; company: string }) {
     return (
       <div
         className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold"
-        style={{
-          border: '0.5px solid #7c3aed55',
-          background: '#7c3aed18',
-          color: '#a78bfa',
-        }}
+        style={{ border: '0.5px solid #7c3aed55', background: '#7c3aed18', color: '#a78bfa' }}
       >
         {company[0]}
       </div>
@@ -135,6 +131,37 @@ function CompanyLogo({ src, company }: { src: string; company: string }) {
   );
 }
 
+function RoleCard({ role, align }: { role: MainRole; align: 'left' | 'right' }) {
+  return (
+    <div className={`flex items-start gap-3 ${align === 'left' ? 'flex-row-reverse text-right' : 'flex-row text-left'}`}>
+      <CompanyLogo src={role.logo} company={role.company} />
+      <div className="flex flex-col gap-1">
+        <div className={`flex flex-wrap items-baseline gap-x-2 gap-y-0.5 ${align === 'left' ? 'justify-end' : 'justify-start'}`}>
+          <span className="text-base font-semibold text-white leading-snug">{role.title}</span>
+          <span className="text-sm" style={{ color: ACCENT[role.accent].label }}>{role.company}</span>
+        </div>
+        <span className="text-xs text-slate-500 font-mono">{role.period}</span>
+        <p className="text-sm text-slate-400 leading-relaxed mt-1 max-w-xs">{role.impact}</p>
+      </div>
+    </div>
+  );
+}
+
+function TimelineDot({ accent }: { accent: 'purple' | 'teal' }) {
+  return (
+    <span className="flex items-center justify-center w-5 h-5">
+      <span
+        className="absolute w-3.5 h-3.5 rounded-full opacity-25"
+        style={{ background: ACCENT[accent].dot }}
+      />
+      <span
+        className="w-2 h-2 rounded-full z-10"
+        style={{ background: ACCENT[accent].dot }}
+      />
+    </span>
+  );
+}
+
 export default function Experience() {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [earlyOpen, setEarlyOpen] = useState(false);
@@ -145,9 +172,16 @@ export default function Experience() {
   });
   const lineScaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
+  const lineTrack = (
+    <motion.div
+      className="w-full bg-gradient-to-b from-[#0d9488] to-[#7c3aed] origin-top"
+      style={{ scaleY: lineScaleY, height: '100%' }}
+    />
+  );
+
   return (
     <section id="experience" className="relative z-10 py-28 px-6">
-      <div className="max-w-4xl mx-auto flex flex-col gap-14">
+      <div className="max-w-5xl mx-auto flex flex-col gap-14">
 
         {/* Heading */}
         <motion.div
@@ -161,71 +195,90 @@ export default function Experience() {
           <div className="h-px w-12 bg-[#7c3aed] rounded-full" />
         </motion.div>
 
-        {/* ── Main timeline ── */}
+        {/* ── Timeline ── */}
         <div ref={timelineRef} className="relative">
 
-          {/* Vertical track at left-[3px] — dots (w-1.5=6px at left-0) centre on it */}
-          <div className="absolute left-[3px] top-2 bottom-2 w-px bg-white/5 overflow-hidden">
-            <motion.div
-              className="w-full bg-gradient-to-b from-[#0d9488] to-[#7c3aed] origin-top"
-              style={{ scaleY: lineScaleY, height: '100%' }}
-            />
+          {/* ── Desktop: centre line ── */}
+          <div className="hidden md:block absolute left-1/2 top-2 bottom-2 w-px -translate-x-1/2 bg-white/5 overflow-hidden">
+            {lineTrack}
           </div>
 
+          {/* ── Mobile: left-aligned line ── */}
+          <div className="md:hidden absolute left-[3px] top-2 bottom-2 w-px bg-white/5 overflow-hidden">
+            {lineTrack}
+          </div>
+
+          {/* ── Role rows ── */}
           <div className="flex flex-col">
-            {MAIN_ROLES.map((role, i) => (
-              <motion.div
-                key={role.title + role.company}
-                initial={{ opacity: 0, x: -18 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.55, delay: 0.05 + i * 0.07, ease: EASE }}
-                className="relative pl-8 pb-10 last:pb-0"
-              >
-                {/* Timeline dot */}
-                <span
-                  className="absolute left-0 top-[16px] flex items-center justify-center"
-                  aria-hidden="true"
-                >
-                  <span
-                    className="absolute w-3 h-3 rounded-full opacity-25"
-                    style={{ background: ACCENT[role.accent].dot }}
-                  />
-                  <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: ACCENT[role.accent].dot }}
-                  />
-                </span>
+            {MAIN_ROLES.map((role, i) => {
+              const isLeft = i % 2 === 0; // odd-numbered (1st, 3rd…) = left
 
-                {/* Role content */}
-                <div className="flex items-start gap-3">
-                  <CompanyLogo src={role.logo} company={role.company} />
+              return (
+                <div key={role.title + role.company} className="relative mb-12 last:mb-0">
 
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                      <span className="text-base font-semibold text-white leading-snug">
-                        {role.title}
-                      </span>
-                      <span className="text-sm" style={{ color: ACCENT[role.accent].label }}>
-                        {role.company}
-                      </span>
+                  {/* ── Desktop layout: 3-col grid ── */}
+                  <div className="hidden md:grid grid-cols-[1fr_40px_1fr] items-center gap-0">
+                    {/* Left slot */}
+                    <div className="flex justify-end pr-6">
+                      {isLeft && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -28 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true, margin: '-60px' }}
+                          transition={{ duration: 0.55, ease: EASE }}
+                        >
+                          <RoleCard role={role} align="left" />
+                        </motion.div>
+                      )}
                     </div>
-                    <span className="text-xs text-slate-500 font-mono">{role.period}</span>
-                    <p className="text-sm text-slate-400 leading-relaxed mt-1.5 max-w-xl">
-                      {role.impact}
-                    </p>
+
+                    {/* Centre dot */}
+                    <div className="flex items-center justify-center relative">
+                      <TimelineDot accent={role.accent} />
+                    </div>
+
+                    {/* Right slot */}
+                    <div className="flex justify-start pl-6">
+                      {!isLeft && (
+                        <motion.div
+                          initial={{ opacity: 0, x: 28 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true, margin: '-60px' }}
+                          transition={{ duration: 0.55, ease: EASE }}
+                        >
+                          <RoleCard role={role} align="right" />
+                        </motion.div>
+                      )}
+                    </div>
                   </div>
+
+                  {/* ── Mobile layout: left-aligned ── */}
+                  <motion.div
+                    className="md:hidden relative pl-8"
+                    initial={{ opacity: 0, x: -18 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ duration: 0.55, delay: i * 0.06, ease: EASE }}
+                  >
+                    {/* Mobile dot */}
+                    <span className="absolute left-0 top-[16px] flex items-center justify-center" aria-hidden="true">
+                      <span className="absolute w-3 h-3 rounded-full opacity-25" style={{ background: ACCENT[role.accent].dot }} />
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: ACCENT[role.accent].dot }} />
+                    </span>
+                    <RoleCard role={role} align="right" />
+                  </motion.div>
+
                 </div>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* ── Earlier experience accordion ── */}
-        <div className="flex flex-col gap-0">
+        {/* ── Earlier experience accordion — centred ── */}
+        <div className="flex flex-col items-center gap-0">
           <button
             onClick={() => setEarlyOpen((v) => !v)}
-            className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-300 transition-colors duration-200 w-fit font-mono tracking-wide group"
+            className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-300 transition-colors duration-200 font-mono tracking-wide group"
             aria-expanded={earlyOpen}
           >
             <motion.span
@@ -246,7 +299,7 @@ export default function Experience() {
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.38, ease: EASE }}
-                className="overflow-hidden"
+                className="overflow-hidden w-full max-w-xl"
               >
                 <div className="flex flex-col gap-0 mt-5">
                   {EARLY_ROLES.map((role) => (
@@ -259,9 +312,7 @@ export default function Experience() {
                         <span className="text-sm text-[#a78bfa]/60">{role.company}</span>
                       </div>
                       <span className="text-xs text-slate-600 font-mono">{role.period}</span>
-                      <p className="text-sm text-slate-500 leading-relaxed mt-0.5 max-w-lg">
-                        {role.impact}
-                      </p>
+                      <p className="text-sm text-slate-500 leading-relaxed mt-0.5">{role.impact}</p>
                     </div>
                   ))}
                 </div>
