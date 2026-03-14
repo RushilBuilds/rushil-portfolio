@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Image from 'next/image';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
@@ -12,6 +13,7 @@ interface MainRole {
   period: string;
   impact: string;
   accent: 'purple' | 'teal';
+  logo: string;
 }
 
 interface EarlyRole {
@@ -29,6 +31,7 @@ const MAIN_ROLES: MainRole[] = [
     impact:
       'Delivered technical demos of an AI voice platform at Mobility Live Sydney. Qualified 8 enterprise leads including a national EV battery distributor.',
     accent: 'purple',
+    logo: '/logos/purplescape_logo.jpg',
   },
   {
     title: 'Data & AI Intern',
@@ -37,6 +40,7 @@ const MAIN_ROLES: MainRole[] = [
     impact:
       'Built production analytics dashboards and pricing models that drove a 30% profitability increase for a US luxury retail client.',
     accent: 'teal',
+    logo: '/logos/purplescape_logo.jpg',
   },
   {
     title: 'Web Development Team Member',
@@ -45,6 +49,7 @@ const MAIN_ROLES: MainRole[] = [
     impact:
       'Ran technical workshops at Google Sydney for 100+ students. 40% conversion rate into the official Google Cloud learning path.',
     accent: 'purple',
+    logo: '/logos/gdgusyd_logo.jpg',
   },
   {
     title: 'Cyber Security Team Lead',
@@ -53,6 +58,7 @@ const MAIN_ROLES: MainRole[] = [
     impact:
       'Led flagship security workshop for 200+ students. Drove 50% increase in campus membership.',
     accent: 'teal',
+    logo: '/logos/gdgusyd_logo.jpg',
   },
   {
     title: 'Industry Project',
@@ -61,6 +67,7 @@ const MAIN_ROLES: MainRole[] = [
     impact:
       'Mixed-methods study uncovering a 4x mismatch in campus occupancy data. Built and presented a working UI prototype to EY stakeholders.',
     accent: 'purple',
+    logo: '/logos/ernstandyoung_logo.jpg',
   },
 ];
 
@@ -93,11 +100,45 @@ const ACCENT = {
   teal: { dot: '#0d9488', label: '#2dd4bf' },
 };
 
+function CompanyLogo({ src, company }: { src: string; company: string }) {
+  const [errored, setErrored] = useState(false);
+
+  if (errored) {
+    return (
+      <div
+        className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold"
+        style={{
+          border: '0.5px solid #7c3aed55',
+          background: '#7c3aed18',
+          color: '#a78bfa',
+        }}
+      >
+        {company[0]}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="relative w-9 h-9 rounded-full shrink-0 overflow-hidden"
+      style={{ border: '0.5px solid #7c3aed55' }}
+    >
+      <Image
+        src={src}
+        alt={company}
+        fill
+        sizes="36px"
+        className="object-cover"
+        onError={() => setErrored(true)}
+      />
+    </div>
+  );
+}
+
 export default function Experience() {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [earlyOpen, setEarlyOpen] = useState(false);
 
-  // Animate the timeline line as section scrolls into view
   const { scrollYProgress } = useScroll({
     target: timelineRef,
     offset: ['start 80%', 'end 60%'],
@@ -123,7 +164,7 @@ export default function Experience() {
         {/* ── Main timeline ── */}
         <div ref={timelineRef} className="relative">
 
-          {/* Vertical track — sits at left-[3px] so dots (w-1.5 = 6px, left-0) centre on it */}
+          {/* Vertical track at left-[3px] — dots (w-1.5=6px at left-0) centre on it */}
           <div className="absolute left-[3px] top-2 bottom-2 w-px bg-white/5 overflow-hidden">
             <motion.div
               className="w-full bg-gradient-to-b from-[#0d9488] to-[#7c3aed] origin-top"
@@ -141,41 +182,39 @@ export default function Experience() {
                 transition={{ duration: 0.55, delay: 0.05 + i * 0.07, ease: EASE }}
                 className="relative pl-8 pb-10 last:pb-0"
               >
-                {/* Dot — centre aligned to left-[3px] track */}
+                {/* Timeline dot */}
                 <span
-                  className="absolute left-0 top-[7px] flex items-center justify-center"
+                  className="absolute left-0 top-[16px] flex items-center justify-center"
                   aria-hidden="true"
                 >
-                  {/* Outer glow ring */}
                   <span
                     className="absolute w-3 h-3 rounded-full opacity-25"
                     style={{ background: ACCENT[role.accent].dot }}
                   />
-                  {/* Inner dot */}
                   <span
                     className="w-1.5 h-1.5 rounded-full"
                     style={{ background: ACCENT[role.accent].dot }}
                   />
                 </span>
 
-                <div className="flex flex-col gap-1">
-                  {/* Title + company */}
-                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                    <span className="text-base font-semibold text-white leading-snug">
-                      {role.title}
-                    </span>
-                    <span className="text-sm" style={{ color: ACCENT[role.accent].label }}>
-                      {role.company}
-                    </span>
+                {/* Role content */}
+                <div className="flex items-start gap-3">
+                  <CompanyLogo src={role.logo} company={role.company} />
+
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <span className="text-base font-semibold text-white leading-snug">
+                        {role.title}
+                      </span>
+                      <span className="text-sm" style={{ color: ACCENT[role.accent].label }}>
+                        {role.company}
+                      </span>
+                    </div>
+                    <span className="text-xs text-slate-500 font-mono">{role.period}</span>
+                    <p className="text-sm text-slate-400 leading-relaxed mt-1.5 max-w-xl">
+                      {role.impact}
+                    </p>
                   </div>
-
-                  {/* Date */}
-                  <span className="text-xs text-slate-500 font-mono">{role.period}</span>
-
-                  {/* Impact line */}
-                  <p className="text-sm text-slate-400 leading-relaxed mt-1.5 max-w-xl">
-                    {role.impact}
-                  </p>
                 </div>
               </motion.div>
             ))}
